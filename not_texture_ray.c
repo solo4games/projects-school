@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 12:14:26 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/22 14:40:13 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/22 15:01:16 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,11 +100,11 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 	draw->start = -draw->line_h / 2 + height / 2;
 	if (draw->start < 0)
 		draw->start = 0;
-	printf("start - %d\n", draw->start);
+	//printf("start - %d\n", draw->start);
 	draw->end = draw->line_h / 2 + height / 2;
 	if (draw->end >= height)
 		draw->end = height - 1;
-	printf("end - %d\n", draw->end);
+	//printf("end - %d\n", draw->end);
 	if (all->pos->dir_x < 0 && r->side == 0)
 		draw->color = 0x00FF0000;
 	if (all->pos->dir_x > 0 && r->side == 0)
@@ -193,6 +193,7 @@ void	draw_frame(t_all *all)
 
 	i = 0;
 	j = 0;
+	mlx_clear_window(all->win->mlx, all->win->win);
 	while (i < all->textures->x)
 	{
 		j = 0;
@@ -207,6 +208,7 @@ void	draw_frame(t_all *all)
 		}
 		i++;
 	}
+	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 }
 
 void	raycasting(t_all *all)
@@ -221,6 +223,7 @@ void	raycasting(t_all *all)
 	all->draw->ms = 0.1;
 	all->draw->rs = 0.1;
 	init_mlx(all->win, all);
+	mlx_clear_window(all->win->mlx, all->win->win);
 	while (i < all->textures->x)
 	{
 		j = 0;
@@ -238,7 +241,7 @@ void	raycasting(t_all *all)
 			my_mlx_pixel_put(all, 100, 100, 0x00FF0000);
 			j++;
 		}*/
-		printf("i - %d\n", i);
+		//printf("i - %d\n", i);
 		i++;
 	}
 	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
