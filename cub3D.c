@@ -6,20 +6,20 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 13:17:20 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/09 17:42:01 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/22 14:40:10 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
-#include "./source/libft/libft.h"
+//#include "./source/libft/libft.h"
 #include "cub3D.h"
 
 void	init_dir(t_pos *pos, char temp)
 {
 	if (temp == 'N')
 	{
-		pos->dir_x = -1;
-		pos->plane_y = -0.66;
+		pos->dir_x = 1;
+		pos->plane_y = 0.66;
 	}
 	if (temp == 'S')
 	{
@@ -106,9 +106,14 @@ int main (int argc, char *argv[])
 			//printf("\nHell Yeah %s \n", list->content);
 			ft_skip(&list);
 			parse_map(list, all);
-			//printf("\n%s\n", (all->map)[0]);
-			init_pos(all->map, all->pos);
-			//printf("\n = %f\n", all->pos->plane_y);
+			if (check_map(all->map))
+			{
+				//printf("\n%s\n", (all->map)[0]);
+				init_pos(all->map, all->pos);
+				printf("width - %d\n", all->textures->y);
+				//printf("\n = %f\n", all->pos->plane_y);
+				raycasting(all);
+			}
 		}
 		else
 			write(1, "yes", 3);

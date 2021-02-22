@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 12:14:26 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/16 14:55:43 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/22 14:40:13 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,25 @@ void	init_raycast(t_raycast *raycast, int x, int w, t_pos *pos)
 	raycast->rayDir_y = pos->dir_y + pos->plane_y * temp;
 	raycast->map_x = (int)pos->pos_x;
 	raycast->map_y = (int)pos->pos_y;
-	raycast->deltaDist_x = (raycast->rayDir_y == 0)? 0: ((raycast->rayDir_x == 0)? 1: fabs(1 / raycast->rayDir_x));
-	raycast->deltaDist_y = (raycast->rayDir_x == 0)? 0: ((raycast->rayDir_y == 0)? 1: fabs(1 / raycast->rayDir_y));
+	if (raycast->rayDir_y == 0)
+		raycast->deltaDist_x = 0;
+	else
+		raycast->deltaDist_x = (raycast->rayDir_x == 0) ? 1 : fabs(1 / raycast->rayDir_x);
+	if (raycast->rayDir_x == 0)
+		raycast->deltaDist_y = 0;
+    else
+		raycast->deltaDist_y = (raycast->rayDir_y == 0) ? 1 : fabs(1 / raycast->rayDir_y);
+	//raycast->deltaDist_x = (raycast->rayDir_y == 0)? 0: ((raycast->rayDir_x == 0)? 1: fabs(1 / raycast->rayDir_x));
+	//raycast->deltaDist_y = (raycast->rayDir_x == 0)? 0: ((raycast->rayDir_y == 0)? 1: fabs(1 / raycast->rayDir_y));
 	raycast->hit = 0;
+	raycast->wallDist = 0;
 }
 
 void	calc_DDA(t_raycast *ray, char** map)
 {
 	while (ray->hit == 0)
 	{
-		if (ray->sideDist_x >= ray->sideDist_y)
+		if (ray->sideDist_x < ray->sideDist_y)
 		{
 			ray->sideDist_x += ray->deltaDist_x;
 			ray->map_x += ray->step_x;
@@ -69,7 +78,7 @@ void	calc_DDA(t_raycast *ray, char** map)
 			ray->map_y += ray->step_y;
 			ray->side = 1;
 		}
-		if (map[ray->map_x][ray->map_y] > 0)
+		if (map[ray->map_x][ray->map_y] == '1')
 			ray->hit = 1;
 	}
 }
@@ -79,26 +88,31 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 	int height;
 	int i;
 
-	draw->color = 0x0000FF00;
+	draw->color = 0;
 	i = 0;
 	height = all->textures->y;
 	if (r->side == 0)
 		r->wallDist = (r->map_x - p->pos_x + (1 - r->step_x) / 2) / r->rayDir_x;
 	else
 		r->wallDist = (r->map_y - p->pos_y + (1 - r->step_y) / 2) / r->rayDir_y;
+	//printf("walldist - %f\n", r->wallDist);
 	draw->line_h = (int)(height / r->wallDist);
 	draw->start = -draw->line_h / 2 + height / 2;
-	//printf("%f\n", r->wallDist);
 	if (draw->start < 0)
 		draw->start = 0;
+	printf("start - %d\n", draw->start);
 	draw->end = draw->line_h / 2 + height / 2;
 	if (draw->end >= height)
 		draw->end = height - 1;
-	//printf("end - %d, start - %d\n", draw->end, draw->start);
-	if (all->pos->dir_x < 0 && all->pos->plane_y < 0)
+	printf("end - %d\n", draw->end);
+	if (all->pos->dir_x < 0 && r->side == 0)
 		draw->color = 0x00FF0000;
-	if(r->side == 1)
-		draw->color /= 2;
+	if (all->pos->dir_x > 0 && r->side == 0)
+		draw->color = 0x0000FF00;
+	if (all->pos->dir_y < 0 && r->side == 1)
+    	draw->color = 0x000000FF;
+	if (all->pos->dir_y > 0 && r->side == 1)
+		draw->color = 0x00FF0099;
 }
 
 void	init_mlx(t_win *w, t_all *all)
@@ -188,7 +202,7 @@ void	draw_frame(t_all *all)
 		init_draw(all->draw, all->raycast, all, all->pos);
 		while(j < all->draw->end - all->draw->start)
 		{
-			my_mlx_pixel_put(all, i, j, all->draw->color);
+			my_mlx_pixel_put(all, j, i, all->draw->color);
 			j++;
 		}
 		i++;
@@ -214,16 +228,16 @@ void	raycasting(t_all *all)
 		init_step(all->raycast, all->pos);
 		calc_DDA(all->raycast, all->map);
 		init_draw(all->draw, all->raycast, all, all->pos);
-		/*while(j < all->draw->end - all->draw->start)
+		while(j < all->draw->end - all->draw->start)
 		{
-			my_mlx_pixel_put(all->win, i, j, 0x00FF0000);
+			my_mlx_pixel_put(all, i, j, 0x00FF0000);
 			j++;
-		}*/
-		while (j < 100)
+		}
+		/*while (j < 100)
 		{
 			my_mlx_pixel_put(all, 100, 100, 0x00FF0000);
 			j++;
-		}
+		}*/
 		printf("i - %d\n", i);
 		i++;
 	}
