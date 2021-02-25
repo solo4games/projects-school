@@ -16,7 +16,31 @@
 
 void	init_dir(t_pos *pos, char temp)
 {
-	if (temp == 'N')
+	if (temp == 'N' || temp == 'S')
+	{
+		pos->dir_x = 0;
+		pos->dir_y = 1;
+		pos->plane_x = 0.66;
+		pos->plane_y = 0;
+		if (temp == 'N')
+		{
+			pos->dir_y = -1;
+			pos->plane_x = -0.66;
+		}
+	}
+	else if (temp == 'W' || temp = 'E')
+	{
+		pos->dir_x = -1;
+		pos->dir_y = 0;
+		pos->plane_x = 0;
+		pos->plane_y = 0.66;
+		if (temp == 'E')
+		{
+			pos->dir_x = 1;
+			pos->plane_y = -0.66;
+		}
+	}
+	/*if (temp == 'N')
 	{
 		pos->dir_x = -1;
 		pos->plane_y = -0.66;
@@ -35,7 +59,7 @@ void	init_dir(t_pos *pos, char temp)
 	{
 		pos->dir_x = 1;
 		pos->plane_y = 0.66;
-	}
+	}*/
 }
 
 void	init_pos(char **map, t_pos *pos)
@@ -63,8 +87,8 @@ void	init_pos(char **map, t_pos *pos)
 	init_dir(pos, temp);
 	pos->map_width = j;
 	pos->map_height = i;
-	pos->plane_x = 0;
-	pos->dir_y = 0;
+	//pos->plane_x = 0;
+	//pos->dir_y = 0;
 	pos->time = 0;
 	pos->old_time = 0;
 }
@@ -103,12 +127,13 @@ int main (int argc, char *argv[])
 			while (get_next_line(fd, &line) == 1)
 				ft_lstadd_back(&list, ft_lstnew(line));
 			ft_parse(&list, all);
-			//printf("\nHell Yeah %s \n", list->content);
 			ft_skip(&list);
 			parse_map(list, all);
-			//printf("\n%s\n", (all->map)[0]);
-			init_pos(all->map, all->pos);
-			//printf("\n = %f\n", all->pos->plane_y);
+			if (check_map(all->map))
+			{
+				init_pos(all->map, all->pos);
+				raycasting(all);
+			}
 		}
 		else
 			write(1, "yes", 3);
