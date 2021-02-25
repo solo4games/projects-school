@@ -40,26 +40,6 @@ void	init_dir(t_pos *pos, char temp)
 			pos->plane_y = -0.66;
 		}
 	}
-	/*if (temp == 'N')
-	{
-		pos->dir_x = -1;
-		pos->plane_y = -0.66;
-	}
-	if (temp == 'S')
-	{
-		pos->dir_x = 1;
-		pos->plane_y = -0.66;
-	}
-	if (temp == 'W')
-	{
-		pos->dir_x = -1;
-		pos->plane_y = 0.66;
-	}
-	if (temp == 'E')
-	{
-		pos->dir_x = 1;
-		pos->plane_y = 0.66;
-	}*/
 }
 
 void	init_pos(char **map, t_pos *pos)
@@ -87,8 +67,6 @@ void	init_pos(char **map, t_pos *pos)
 	init_dir(pos, temp);
 	pos->map_width = j;
 	pos->map_height = i;
-	//pos->plane_x = 0;
-	//pos->dir_y = 0;
 	pos->time = 0;
 	pos->old_time = 0;
 }
@@ -123,7 +101,8 @@ int main (int argc, char *argv[])
 	{
 		if (ft_strncmp(&(argv[1][ft_strlen(argv[1]) - 4]), ".cub", 4) == 0)
 		{
-			fd = open(argv[1], O_RDONLY);
+			if ((fd = open_file(argv[1])) == -1)
+				return(-1);
 			while (get_next_line(fd, &line) == 1)
 				ft_lstadd_back(&list, ft_lstnew(line));
 			ft_parse(&list, all);
