@@ -130,17 +130,17 @@ int	drawing(int keycode, t_all *all)
 	old_planex = 0;
 	if (keycode == 13)
 	{
-		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * all->draw->ms)][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms + 0.3))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x += all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * all->draw->ms)] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms + 0.3))] == '0')
 			all->pos->pos_y += all->pos->dir_y * all->draw->ms;
 	}
 	if(keycode == 1)
 	{
-		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * all->draw->ms)][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * (all->draw->ms + 0.01))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x -= all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * all->draw->ms)] == '0')
-			all->pos->pos_y -= all->pos->dir_y * all->draw->ms;
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * (all->draw->ms + 0.01))] == '0')
+			all->pos->pos_y -= all->pos->dir_y * all->draw->ms;//right +- left -+
 	}
 	if (keycode == 124)
 	{
@@ -204,8 +204,8 @@ void	raycasting(t_all *all)
 	all->win = (t_win *)malloc(sizeof(t_win));
 	all->raycast = (t_raycast *)malloc(sizeof(t_raycast));
 	all->draw = (t_draw *)malloc(sizeof(t_draw));
-	all->draw->ms = 5.0;
-	all->draw->rs = 3.0;
+	all->draw->ms = 0.15;
+	all->draw->rs = 0.1;
 	//mlx_initialize(all->win, all);
 	//all->win->mlx = mlx_init();
 	//all->win->win = mlx_new_window(all->win->mlx, all->textures->x, all->textures->y, "Cub3D");
