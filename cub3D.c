@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 13:17:20 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/22 14:40:10 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/27 15:46:17 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,31 @@
 
 void	init_dir(t_pos *pos, char temp)
 {
-	if (temp == 'N')
+	if (temp == 'N' || temp == 'S')
+	{
+		pos->dir_x = 0;
+		pos->dir_y = 1;
+		pos->plane_x = 0.66;
+		pos->plane_y = 0;
+		if (temp == 'N')
+		{
+			pos->dir_y = -1;
+			pos->plane_x = -0.66;
+		}
+	}
+	else if (temp == 'W' || temp == 'E')
+	{
+		pos->dir_x = -1;
+		pos->dir_y = 0;
+		pos->plane_x = 0;
+		pos->plane_y = 0.66;
+		if (temp == 'E')
+		{
+			pos->dir_x = 1;
+			pos->plane_y = -0.66;
+		}
+	}
+	/*if (temp == 'N')
 	{
 		pos->dir_x = 1;
 		pos->plane_y = 0.66;
@@ -35,7 +59,7 @@ void	init_dir(t_pos *pos, char temp)
 	{
 		pos->dir_x = 1;
 		pos->plane_y = 0.66;
-	}
+	}*/
 }
 
 void	init_pos(char **map, t_pos *pos)
@@ -63,8 +87,8 @@ void	init_pos(char **map, t_pos *pos)
 	init_dir(pos, temp);
 	pos->map_width = j;
 	pos->map_height = i;
-	pos->plane_x = 0;
-	pos->dir_y = 0;
+	//pos->plane_x = 0;
+	//pos->dir_y = 0;
 	pos->time = 0;
 	pos->old_time = 0;
 }
