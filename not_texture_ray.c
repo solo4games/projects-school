@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 12:14:26 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/22 15:01:16 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/28 17:27:58 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,12 @@ void	init_step(t_raycast *ray, t_pos *pos)
 	if (ray->rayDir_y < 0)
 	{
 		ray->step_y = -1;
-		ray->sideDist_y = (pos->pos_x - ray->map_x) * ray->deltaDist_x;
+		ray->sideDist_y = (pos->pos_y - ray->map_y) * ray->deltaDist_y;
 	}
 	else
 	{
 		ray->step_y = 1;
-		ray->sideDist_y = (ray->map_y + 1.0 - pos->pos_y) * ray->deltaDist_x;
+		ray->sideDist_y = (ray->map_y + 1.0 - pos->pos_y) * ray->deltaDist_y;
 	}
 }
 
@@ -56,13 +56,11 @@ void	init_raycast(t_raycast *raycast, int x, int w, t_pos *pos)
 		raycast->deltaDist_y = 0;
     else
 		raycast->deltaDist_y = (raycast->rayDir_y == 0) ? 1 : fabs(1 / raycast->rayDir_y);
-	//raycast->deltaDist_x = (raycast->rayDir_y == 0)? 0: ((raycast->rayDir_x == 0)? 1: fabs(1 / raycast->rayDir_x));
-	//raycast->deltaDist_y = (raycast->rayDir_x == 0)? 0: ((raycast->rayDir_y == 0)? 1: fabs(1 / raycast->rayDir_y));
 	raycast->hit = 0;
 	raycast->wallDist = 0;
 }
 
-void	calc_DDA(t_raycast *ray, char** map)
+void	calc_DDA(t_raycast *ray, char** map, t_pos *p)
 {
 	while (ray->hit == 0)
 	{
@@ -81,9 +79,14 @@ void	calc_DDA(t_raycast *ray, char** map)
 		if (map[ray->map_x][ray->map_y] == '1')
 			ray->hit = 1;
 	}
+	printf("stepx - %d stepy - %d\n", ray->step_x, ray->step_y);
+	if (ray->side == 0)
+		ray->wallDist = (ray->map_x - p->pos_x + (1 - ray->step_x) / 2) / ray->rayDir_x;
+	else
+		ray->wallDist = (ray->map_y - p->pos_y + (1 - ray->step_y) / 2) / ray->rayDir_y;
 }
 
-void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
+void	init_draw(t_draw *draw, t_raycast *r, t_all *all)
 {
 	int height;
 	int i;
@@ -91,27 +94,21 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 	draw->color = 0;
 	i = 0;
 	height = all->textures->y;
-	if (r->side == 0)
-		r->wallDist = (r->map_x - p->pos_x + (1 - r->step_x) / 2) / r->rayDir_x;
-	else
-		r->wallDist = (r->map_y - p->pos_y + (1 - r->step_y) / 2) / r->rayDir_y;
-	//printf("walldist - %f\n", r->wallDist);
 	draw->line_h = (int)(height / r->wallDist);
 	draw->start = -draw->line_h / 2 + height / 2;
 	if (draw->start < 0)
 		draw->start = 0;
-	//printf("start - %d\n", draw->start);
 	draw->end = draw->line_h / 2 + height / 2;
 	if (draw->end >= height)
 		draw->end = height - 1;
-	//printf("end - %d\n", draw->end);
-	if (all->pos->dir_x < 0 && r->side == 0)
+	printf("start - %d end - %d\n; Walldist - %f\n", draw->start, draw->end, r->wallDist);
+	if (all->raycast->rayDir_x < 0 && r->side == 0)
 		draw->color = 0x00FF0000;
-	if (all->pos->dir_x > 0 && r->side == 0)
+	if (all->raycast->rayDir_x > 0 && r->side == 0)
 		draw->color = 0x0000FF00;
-	if (all->pos->dir_y < 0 && r->side == 1)
+	if (all->raycast->rayDir_y < 0 && r->side == 1)
     	draw->color = 0x000000FF;
-	if (all->pos->dir_y > 0 && r->side == 1)
+	if (all->raycast->rayDir_y > 0 && r->side == 1)
 		draw->color = 0x00FF0099;
 }
 
@@ -119,8 +116,8 @@ void	init_mlx(t_win *w, t_all *all)
 {
 	w->mlx = mlx_init();
 	w->win = mlx_new_window(w->mlx, all->textures->x, all->textures->y, "Cub3D");
-	w->img = mlx_new_image(w->mlx, all->textures->x, all->textures->y);
-	w->addr = mlx_get_data_addr(w->img, &(w->bpp), &(w->length), &(w->endian));
+	w->img = (char *)mlx_new_image(w->mlx, all->textures->x, all->textures->y);
+	w->addr = (char *)mlx_get_data_addr(w->img, &(w->bpp), &(w->length), &(w->endian));
 }
 
 int		drawing(int keycode, t_all *all)
@@ -132,10 +129,17 @@ int		drawing(int keycode, t_all *all)
 	old_planex = 0;
 	if (keycode == 13)
 	{
-		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * all->draw->ms)][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x += all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * all->draw->ms)] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
 			all->pos->pos_y += all->pos->dir_y * all->draw->ms;
+	}
+	if (keycode == 0)
+	{
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+			all->pos->pos_x -= all->pos->dir_y * all->draw->ms;
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
+			all->pos->pos_y += all->pos->dir_x * all->draw->ms;
 		/*if(all->map[(int)(p->pos_x + p->dir_x * all->draw->ms),(int)p->pos_y] == '0')
 			p->pos_x += p->dir_x * all->draw->ms;
 		if(all->map[(int)(p->pos_x), (int)(p->pos_y + p->dir_y * all->draw->ms)] == '0')
@@ -143,14 +147,21 @@ int		drawing(int keycode, t_all *all)
 	}
 	if(keycode == 1)
 	{
-		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * all->draw->ms)][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x -= all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * all->draw->ms)] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * (all->draw->ms))] == '0')
 			all->pos->pos_y -= all->pos->dir_y * all->draw->ms;
 		/*if(all->map[(int)(p->pos_x - p->dir_x * all->draw->ms),(int)p->pos_y] == '0')
 			p->pos_x -= p->dir_x * all->draw->ms;
 		if(all->map[(int)(p->pos_x), (int)(p->pos_y - p->dir_y * all->draw->ms)] == '0')
 			p->pos_y -= p->dir_y * all->draw->ms;*/
+	}
+	if (keycode == 2)
+	{
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+			all->pos->pos_x += all->pos->dir_y * all->draw->ms;
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
+			all->pos->pos_y -= all->pos->dir_x * all->draw->ms;
 	}
 	if (keycode == 124)
 	{
@@ -192,18 +203,27 @@ void	draw_frame(t_all *all)
 	int j;
 
 	i = 0;
-	j = 0;
 	mlx_clear_window(all->win->mlx, all->win->win);
 	while (i < all->textures->x)
 	{
 		j = 0;
 		init_raycast(all->raycast, i, all->textures->x, all->pos);
 		init_step(all->raycast, all->pos);
-		calc_DDA(all->raycast, all->map);
-		init_draw(all->draw, all->raycast, all, all->pos);
-		while(j < all->draw->end - all->draw->start)
+		calc_DDA(all->raycast, all->map, all->pos);
+		init_draw(all->draw, all->raycast, all);
+		while (j < all->draw->start)
 		{
-			my_mlx_pixel_put(all, j, i, all->draw->color);
+			my_mlx_pixel_put(all, i, j, 0x00000000);
+			j++;
+		}
+		while(j < all->draw->end)
+		{
+			my_mlx_pixel_put(all, i, j, all->draw->color);
+			j++;
+		}
+		while (j < all->textures->y)
+		{
+			my_mlx_pixel_put(all, i, j, 0x00000000);
 			j++;
 		}
 		i++;
@@ -214,37 +234,32 @@ void	draw_frame(t_all *all)
 void	raycasting(t_all *all)
 {
 	int i;
-	int j;
+	//int j;
 
 	i = 0;
 	all->win = (t_win *)malloc(sizeof(t_win));
 	all->raycast = (t_raycast *)malloc(sizeof(t_raycast));
 	all->draw = (t_draw *)malloc(sizeof(t_draw));
-	all->draw->ms = 0.1;
+	all->draw->ms = 0.05;
 	all->draw->rs = 0.1;
 	init_mlx(all->win, all);
-	mlx_clear_window(all->win->mlx, all->win->win);
-	while (i < all->textures->x)
+	draw_frame(all);
+	//mlx_clear_window(all->win->mlx, all->win->win);
+	/*while (i < all->textures->x)
 	{
-		j = 0;
 		init_raycast(all->raycast, i, all->textures->x, all->pos);
 		init_step(all->raycast, all->pos);
-		calc_DDA(all->raycast, all->map);
-		init_draw(all->draw, all->raycast, all, all->pos);
-		while(j < all->draw->end - all->draw->start)
+		calc_DDA(all->raycast, all->map, all->pos);
+		init_draw(all->draw, all->raycast, all);
+		j = all->draw->start;
+		while(j < all->draw->end)
 		{
-			my_mlx_pixel_put(all, i, j, 0x00FF0000);
+			my_mlx_pixel_put(all, i, j, all->draw->color);
 			j++;
 		}
-		/*while (j < 100)
-		{
-			my_mlx_pixel_put(all, 100, 100, 0x00FF0000);
-			j++;
-		}*/
-		//printf("i - %d\n", i);
 		i++;
-	}
-	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
+	}*/
+	//mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 	mlx_hook(all->win->win, 2, 1L<<0, &drawing, all);
 	mlx_loop(all->win->mlx);
 }

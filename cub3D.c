@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 13:17:20 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/27 15:46:17 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/28 12:59:49 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,26 +40,6 @@ void	init_dir(t_pos *pos, char temp)
 			pos->plane_y = -0.66;
 		}
 	}
-	/*if (temp == 'N')
-	{
-		pos->dir_x = 1;
-		pos->plane_y = 0.66;
-	}
-	if (temp == 'S')
-	{
-		pos->dir_x = 1;
-		pos->plane_y = -0.66;
-	}
-	if (temp == 'W')
-	{
-		pos->dir_x = -1;
-		pos->plane_y = 0.66;
-	}
-	if (temp == 'E')
-	{
-		pos->dir_x = 1;
-		pos->plane_y = 0.66;
-	}*/
 }
 
 void	init_pos(char **map, t_pos *pos)
@@ -87,8 +67,6 @@ void	init_pos(char **map, t_pos *pos)
 	init_dir(pos, temp);
 	pos->map_width = j;
 	pos->map_height = i;
-	//pos->plane_x = 0;
-	//pos->dir_y = 0;
 	pos->time = 0;
 	pos->old_time = 0;
 }
@@ -127,15 +105,12 @@ int main (int argc, char *argv[])
 			while (get_next_line(fd, &line) == 1)
 				ft_lstadd_back(&list, ft_lstnew(line));
 			ft_parse(&list, all);
-			//printf("\nHell Yeah %s \n", list->content);
 			ft_skip(&list);
 			parse_map(list, all);
 			if (check_map(all->map))
 			{
-				//printf("\n%s\n", (all->map)[0]);
 				init_pos(all->map, all->pos);
 				printf("width - %d\n", all->textures->y);
-				//printf("\n = %f\n", all->pos->plane_y);
 				raycasting(all);
 			}
 		}
