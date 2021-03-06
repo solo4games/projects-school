@@ -14,6 +14,7 @@
 # define CUB3D_H
 
 #include "./source/libft/libft.h"
+#include <stdio.h>
 
 typedef struct	s_win
 {
@@ -32,6 +33,13 @@ typedef struct	s_draw
 	int			start;
 	int			end;
 	int			color;
+	int			tex_width;
+	int			tex_height;
+	double			wall_x;
+	double			step;
+	int			tex_x;
+	int			tex_y;
+	double			tex_pos;	
 	double		ms;
 	double		rs;
 }				t_draw;
@@ -68,6 +76,17 @@ typedef struct	s_pos
 	double		time;
 }				t_pos;
 
+typedef struct	s_datatext
+{
+	void	*img;
+	char	*addr;
+	int	bpp;
+	int	length;
+	int	endian;
+	int	height;
+	int	width;
+}		t_datatext;
+
 typedef struct	s_textures
 {
 	int			x;
@@ -83,6 +102,10 @@ typedef struct	s_textures
 
 typedef struct	s_all
 {
+	t_datatext	*NO;
+	t_datatext	*SO;
+	t_datatext	*WE;
+	t_datatext	*EA;
 	t_win		*win;
 	t_textures	*textures;
 	t_pos		*pos;
@@ -96,5 +119,7 @@ void			ft_parse(t_list **list, t_all *all);
 void			parse_map(t_list *list, t_all *all);
 void			ft_skip(t_list **list);
 void			my_pixel_put(t_win *win, int x, int y, int color);
+void			draw_frame(t_all *all);
+void			raycasting(t_all *all);
 
 #endif

@@ -90,6 +90,8 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 	draw->color = 0;
 	i = 0;
 	height = all->textures->y;
+	draw->tex_width = 64;
+	draw->tex_height = 64;
 	if (r->side == 0)
 		r->wallDist = (r->map_x - p->pos_x + (1 - r->step_x) / 2) / r->rayDir_x;
 	else
@@ -101,14 +103,26 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 	draw->end = draw->line_h / 2 + height / 2;
 	if (draw->end >= height)
 		draw->end = height - 1;
-	if (all->pos->dir_x < 0 && r->side == 0)
-		draw->color = 0x00FF0000;
-	if (all->pos->dir_x > 0 && r->side == 0)
-		draw->color = 0x0000FF00;
-	if (all->pos->dir_y < 0 && r->side == 1)
-                draw->color = 0x000000FF;
-        if (all->pos->dir_y > 0 && r->side == 1)
-                draw->color = 0x00FF0099;
+	if (r->side == 0)
+		draw->wall_x = p->pos_y + r->wallDist * r->rayDir_y;
+	else
+		draw->wall_x = p->pos_x + r->wallDist * r->rayDir_x;
+	draw->wall_x -= floor((draw->wall_x));
+	draw->tex_x = (int)(draw->wall_x * (double)draw->tex_width)
+	if (r->side == 0 && r->rayDir_x > 0)
+		draw->tex_x = draw->tex_width - draw->tex_x - 1;
+	if (r->side == 1 && r->rayDir_y < 0)
+		draw->tex_x = draw->tex_width - draw->tex_x - 1;
+	draw->step = 1.0 * draw->tex_height / draw->line_h;
+	draw->tex_pos = (draw->start - height / 2 + draw->line_h / 2) * draw->step;
+	//if (all->pos->dir_x < 0 && r->side == 0)
+	//	draw->color = 0x00FF0000;
+	//if (all->pos->dir_x > 0 && r->side == 0)
+	//	draw->color = 0x0000FF00;
+	//if (all->pos->dir_y < 0 && r->side == 1)
+          //      draw->color = 0x000000FF;
+        //if (all->pos->dir_y > 0 && r->side == 1)
+          //      draw->color = 0x00FF0099;
 	//if(r->side == 1)
 	//	draw->color /= 2;
 }
@@ -164,6 +178,25 @@ int	drawing(int keycode, t_all *all)
 	return(0);
 }
 
+void	draw_wall(t_all *all, t_draw *d, int *y, int x)
+{
+	while (*y < d->end)
+	{
+		draw->tex_y = (int)draw->tex_pos & (draw->tex_height - 1);
+		draw->tex_pos += draw->step;
+		if (all->raycast->side == 0 && all->raycast->rayDir_x < 0)
+			draw->color = (*(int *)(all->SO->addr + (draw->tex_x + draw->tex_y * all->SO->width) * (all->SO->bpp / 8)));
+		if (all->raycast->side == 0 && all->raycast->rayDir_x > 0)
+			draw->color = (*(int *)(all->EA->addr + (draw->tex_x + draw->tex_y * all->EA->width) * (all->EA->bpp / 8)));
+		if (all->raycast->side == 1 && all->raycsat->rayDir_y < 0)
+			draw->color = (*(int *)(all->NO->addr + (draw->tex_x + draw->tex_y * all->NO->width) * (all->NO->bpp / 8)));
+		if (all->raycast->side == 1 && all->raycast->rayDir_y > 0)
+			draw->color = (*(int *)(all->WE->addr + (draw->tex_x + draw->tex_y * all->WE->width) * (all->WE->bpp / 8)));
+		my_mlx_pixel_put(all, x, y, draw->color);
+		(*y)++;
+	}
+}
+
 void	draw_frame(t_all *all)
 {
 	int i;
@@ -183,6 +216,7 @@ void	draw_frame(t_all *all)
 			my_pixel_put(all->win, i, j, all->draw->color);
 			j++;
 		}
+		
 		i++;
 	}
 }
