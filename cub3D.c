@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 13:17:20 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/28 12:59:49 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/03/07 14:41:11 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	init_dir(t_pos *pos, char temp)
 		pos->plane_y = 0;
 		if (temp == 'N')
 		{
-			pos->dir_y = -1;
+			pos->dir_y = -1.0;
 			pos->plane_x = -0.66;
 		}
 	}
@@ -36,13 +36,13 @@ void	init_dir(t_pos *pos, char temp)
 		pos->plane_y = 0.66;
 		if (temp == 'E')
 		{
-			pos->dir_x = 1;
+			pos->dir_x = 1.0;
 			pos->plane_y = -0.66;
 		}
 	}
 }
 
-void	init_pos(char **map, t_pos *pos)
+void	init_pos(char **map, t_pos *pos, t_all *all)
 {
 	int		i;
 	int		j;
@@ -56,9 +56,10 @@ void	init_pos(char **map, t_pos *pos)
 		{
 			if(map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'W' || map[i][j] == 'E')
 			{
-				pos->pos_x = j;
-				pos->pos_y = i;
+				pos->pos_x = i + 0.5;
+				pos->pos_y = j + 0.5;
 				temp = map[i][j];
+				all->map[i][j] = '0';
 			}
 			j++;
 		}
@@ -107,10 +108,13 @@ int main (int argc, char *argv[])
 			ft_parse(&list, all);
 			ft_skip(&list);
 			parse_map(list, all);
+			all->win = (t_win *)malloc(sizeof(t_win));
+			init_mlx(all->win, all);
 			if (check_map(all->map))
 			{
-				init_pos(all->map, all->pos);
+				init_pos(all->map, all->pos, all);
 				printf("width - %d\n", all->textures->y);
+				reading_textures(all);
 				raycasting(all);
 			}
 		}

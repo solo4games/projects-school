@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 12:14:26 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/03/06 17:18:03 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/03/07 14:56:26 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ void	calc_DDA(t_raycast *ray, char** map, t_pos *p)
 		ray->wallDist = (ray->map_x - p->pos_x + (1 - ray->step_x) / 2) / ray->rayDir_x;
 	else
 		ray->wallDist = (ray->map_y - p->pos_y + (1 - ray->step_y) / 2) / ray->rayDir_y;
+	printf("walldist - %f, dirx - %f, diry - %f\n", ray->wallDist, ray->rayDir_x, ray->rayDir_y);
 }
 
 void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
@@ -116,14 +117,14 @@ void	init_draw(t_draw *draw, t_raycast *r, t_all *all, t_pos *p)
 		draw->tex_x = draw->tex_width - draw->tex_x - 1;
 	draw->step = 1.0 * draw->tex_height / draw->line_h;
 	draw->tex_pos = (draw->start - height / 2 + draw->line_h / 2) * draw->step;
-	/*if (all->raycast->rayDir_x < 0 && r->side == 0)
+	if (all->raycast->rayDir_x < 0 && r->side == 0)
 		draw->color = 0x00FF0000;
 	if (all->raycast->rayDir_x > 0 && r->side == 0)
 		draw->color = 0x0000FF00;
 	if (all->raycast->rayDir_y < 0 && r->side == 1)
     	draw->color = 0x000000FF;
 	if (all->raycast->rayDir_y > 0 && r->side == 1)
-		draw->color = 0x00FF0099;*/
+		draw->color = 0x00FF0099;
 }
 
 void	init_mlx(t_win *w, t_all *all)
@@ -141,49 +142,49 @@ int		drawing(int keycode, t_all *all)
 
 	old_dirx = 0;
 	old_planex = 0;
-	if (keycode == 13)//пофиксить заходы в стену
+	if (keycode == 13)
 	{
-		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms + 0.1))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x += all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms + 0.1))] == '0')
 			all->pos->pos_y += all->pos->dir_y * all->draw->ms;
 	}
 	if (keycode == 0)
 	{
-		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x - all->pos->dir_y * (all->draw->ms + 0.1))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x -= all->pos->dir_y * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_x * (all->draw->ms + 0.1))] == '0')
 			all->pos->pos_y += all->pos->dir_x * all->draw->ms;
 	}
 	if(keycode == 1)
 	{
-		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x - all->pos->dir_x * (all->draw->ms + 0.01))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x -= all->pos->dir_x * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * (all->draw->ms))] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_y * (all->draw->ms + 0.01))] == '0')
 			all->pos->pos_y -= all->pos->dir_y * all->draw->ms;
 	}
 	if (keycode == 2)
 	{
-		if(all->map[(int)(all->pos->pos_x + all->pos->dir_x * (all->draw->ms))][(int)all->pos->pos_y] == '0')
+		if(all->map[(int)(all->pos->pos_x + all->pos->dir_y * (all->draw->ms + 0.1))][(int)all->pos->pos_y] == '0')
 			all->pos->pos_x += all->pos->dir_y * all->draw->ms;
-		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y + all->pos->dir_y * (all->draw->ms))] == '0')
+		if(all->map[(int)(all->pos->pos_x)][(int)(all->pos->pos_y - all->pos->dir_x * (all->draw->ms + 0.1))] == '0')
 			all->pos->pos_y -= all->pos->dir_x * all->draw->ms;
 	}
 	if (keycode == 124)
 	{
 		old_dirx = all->pos->dir_x;
-		old_planex = all->pos->plane_x;
 		all->pos->dir_x = all->pos->dir_x * cos(-all->draw->rs) - all->pos->dir_y * sin(-all->draw->rs);
 		all->pos->dir_y = old_dirx * sin(-all->draw->rs) + all->pos->dir_y * cos(-all->draw->rs);
+		old_planex = all->pos->plane_x;
 		all->pos->plane_x = all->pos->plane_x * cos(-all->draw->rs) - all->pos->plane_y * sin(-all->draw->rs);
 		all->pos->plane_y = old_planex * sin(-all->draw->rs) + all->pos->plane_y * cos(-all->draw->rs);
 	}
 	if (keycode == 123)
 	{
 		old_dirx = all->pos->dir_x;
-		old_planex = all->pos->plane_x;
 		all->pos->dir_x = all->pos->dir_x * cos(all->draw->rs) - all->pos->dir_y * sin(all->draw->rs);
 		all->pos->dir_y = old_dirx * sin(all->draw->rs) + all->pos->dir_y * cos(all->draw->rs);
+		old_planex = all->pos->plane_x;
 		all->pos->plane_x = all->pos->plane_x * cos(all->draw->rs) - all->pos->plane_y * sin(all->draw->rs);
 		all->pos->plane_y = old_planex * sin(all->draw->rs) + all->pos->plane_y * cos(all->draw->rs);
 	}
@@ -212,7 +213,7 @@ void	draw_frame(t_all *all)
 		}
 		/*while (j < all->draw->end)
 		{
-			my_mlx_pixel_put(all, i, j, 0x00FF0000);
+			my_mlx_pixel_put(all, i, j, all->draw->color);
 			j++;
 		}*/
 		draw_wall(all, all->draw, &j, i);
