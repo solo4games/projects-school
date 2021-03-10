@@ -6,11 +6,11 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/30 13:27:27 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/02/22 13:33:10 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/02/07 13:33:55 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "./source/libft/libft.h"
+#include "./source/libft/libft.h"
 #include <stdio.h>
 #include "cub3D.h"
 
@@ -37,52 +37,22 @@ int		check_structure(t_textures *textures)
 			textures->F == -1 || textures->C == -1);
 }
 
-int		count_digits(char *str)
-{
-	int counter;
-
-	counter = 0;
-	if (*str == '-')
-		return (-1);
-	while (ft_isdigit(*str))
-	{
-		counter++;
-		str++;
-	}
-	return (counter);
-}
-
-void	ft_skip_numbers(char **str)
-{
-	while (ft_isdigit(**str) || **str == '-')
-		(*str)++;
-}
-
 void	init_res(t_textures *win, char *str, t_all *all)
 {
-	int counter;
-
-	counter = 0;
 	if (win->x == -1 && win->y == -1)
 	{
-		while (!(*str >= 48 && *str <= 57) && *str != '-')
+		while (!(*str >= 48 && *str <= 57))
 			str++;
-		if (count_digits(str) >	10 || count_digits(str) == -1)
-			win->x = 10000;
-		else
-			win->x = ft_atoi(str);
-		ft_skip_numbers(&str);
-		if (win->x > 640)//change to normal
-			win->x = 640;
-		while (!(*str >= 48 && *str <= 57) && *str != '-')
+		win->x = ft_atoi(str);
+		str += len_number_int(win->x);
+		if (win->x > 1920)
+			win->x = 1920;
+		while (!(*str >= 48 && *str <= 57))
 			str++;
-		if (count_digits(str) > 10 || count_digits(str) == -1)
-			win->y = 10000;
-		else
-			win->y = ft_atoi(str);
-		ft_skip_numbers(&str);
-		if (win->y > 480)//change to normal
-			win->y = 480;
+		win->y = ft_atoi(str);
+		str += len_number_int(win->y);
+		if (win->y > 1080)
+			win->y = 1080;
 		(all->count_params)++;
 	}
 	else
