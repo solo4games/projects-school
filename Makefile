@@ -6,7 +6,7 @@
 #    By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/04 15:16:54 by lbrandy           #+#    #+#              #
-#    Updated: 2021/02/10 13:52:19 by lbrandy          ###   ########.fr        #
+#    Updated: 2021/03/11 14:54:23 by lbrandy          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,14 +16,14 @@ CC = gcc
 LIB = libmlx.dylib
 LIBFT_DIR = ./source/libft/
 LIBFT = ./source/libft/libft.a
-SRCS = cub3D.c parser.c mlx_help.c
+SRCS = cub3D.c parser.c mlx_help.c not_texture_ray.c map_check.c texture_reading.c paint_sprites.c
 OBJDIR = obj/
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 
 all: $(NAME)
 
 $(NAME):$(OBJDIR) $(OBJS)
-	@make -C $(LIBFT_DIR)
+	@make bonus -C $(LIBFT_DIR)
 	$(CC) $(CFLAGS) -Lmlx -lmx -framework OpenGL -framework Appkit $(LIB) $(LIBFT) $(SRCS) -o $(NAME)
 $(OBJDIR):
 	mkdir $(OBJDIR)

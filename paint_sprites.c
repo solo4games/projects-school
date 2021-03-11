@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   paint_sprites.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/11 13:58:48 by lbrandy           #+#    #+#             */
+/*   Updated: 2021/03/11 15:39:40 by lbrandy          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "cub3D.h"
 
-int	count_of_sprites(char **map)
+int		count_of_sprites(char **map)
 {
-	int i;
-	int j;
-	int count;
+	int	i;
+	int	j;
+	int	count;
 
 	i = 0;
 	count = 0;
@@ -19,7 +31,7 @@ int	count_of_sprites(char **map)
 		}
 		i++;
 	}
-	return(count);
+	return (count);
 }
 
 void	array_of_sprites(t_all *all)
@@ -49,10 +61,10 @@ void	array_of_sprites(t_all *all)
 	}
 }
 
-void	bubble_sort(t_sprite *spr, int num)
+void	bubble_sort(t_sprite *sprite, int num)
 {
-	int		i;
-	int		sort;
+	int			i;
+	int			sort;
 	t_sprite	tmp;
 
 	sort = 0;
@@ -60,7 +72,7 @@ void	bubble_sort(t_sprite *spr, int num)
 	{
 		i = 0;
 		sort = 1;
-		while (i < num - 2)
+		while (i < num - 1)
 		{
 			if (sprite[i].dist < sprite[i + 1].dist)
 			{
@@ -76,15 +88,15 @@ void	bubble_sort(t_sprite *spr, int num)
 
 void	init_sprite_dist(t_datasprite *data_sprite, t_pos *pos)
 {
-	int i;
-
+	int	i;
+	
 	i = 0;
 	while (i < data_sprite->count_sprites)
 	{
 		data_sprite->sprites[i].dist = (pos->pos_x - data_sprite->sprites[i].x)
-					* (pos->pos_x - data_sprite->sprites[i].x) +
-					(pos->pos_y - data_sprite->sprites[i].y) *
-					(pos->pos_y - data_sprite->sprites[i].y);
+			* (pos->pos_x - data_sprite->sprites[i].x) + 
+			(pos->pos_y - data_sprite->sprites[i].y) *
+			(pos->pos_y - data_sprite->sprites[i].y);
 		i++;
 	}
 	data_sprite->tex_width = 64;
@@ -96,7 +108,7 @@ void	calculate_draw(t_datasprite *sprite, t_textures *res)
 	sprite->draw_start_y = -sprite->sprite_height / 2 + res->y / 2;
 	if (sprite->draw_start_y < 0)
 		sprite->draw_start_y = 0;
-	sprite->draw_end_y = sprite->sprite_heght / 2 + res->y / 2;
+	sprite->draw_end_y = sprite->sprite_height / 2 + res->y / 2;
 	if (sprite->draw_end_y >= res->y)
 		sprite->draw_end_y = res->y - 1;
 	sprite->sprite_width = abs((int)(res->y / sprite->transform_y));
@@ -106,7 +118,6 @@ void	calculate_draw(t_datasprite *sprite, t_textures *res)
 	sprite->draw_end_x = sprite->sprite_width / 2 + sprite->sprite_screen_x - 0.6;
 	if (sprite->draw_end_x >= res->y)
 		sprite->draw_end_x = res->y - 1;
-	
 }
 
 void	calc_sprite(t_datasprite *sprite, int i, t_pos *pos, t_textures *res)
@@ -121,25 +132,25 @@ void	calc_sprite(t_datasprite *sprite, int i, t_pos *pos, t_textures *res)
 	calculate_draw(sprite, res);
 }
 
-void	init_sprite(t_all *all) //написать во время инициализации направления
+void	init_sprite(t_all *all)
 {
-	all->data_sprite = (t_datasprites *)malloc(sizeof(t_datasprites));
+	all->data_sprite = (t_datasprite *)malloc(sizeof(t_datasprite));
 	all->data_sprite->count_sprites = count_of_sprites(all->map);
 	array_of_sprites(all);
 	all->data_sprite->z_buffer = (double *)malloc((all->textures->x + 1) * sizeof(double));
 }
 
-void	draw_sprite(t_datasprite *s, t_textures *res, t_datatext *tex)
+void	draw_sprite(t_datasprite *s, t_textures *res, t_datatext *tex, t_all *all)
 {
-	int y;
-	int d;
+	int	y;
+	int	d;
 
 	while (s->stripe < s->draw_end_x)
 	{
 		s->tex_x = (int)(256 * (s->stripe - (-s->sprite_width / 2 +
 		s->sprite_screen_x)) * s->tex_width / s->sprite_width) / 256;
 		if (s->transform_y > 0 && s->stripe > 0 && s->stripe < res->y &&
-			s->transform_y < s->z_buffer[s->stripe])
+				s->transform_y < s->z_buffer[s->stripe])
 		{
 			y = s->draw_start_y;
 			while (y < s->draw_end_y)
@@ -158,16 +169,16 @@ void	draw_sprite(t_datasprite *s, t_textures *res, t_datatext *tex)
 
 void	draw_sprites(t_all *all)
 {
-	int	i;
+	int		i;
 
 	i = 0;
 	init_sprite_dist(all->data_sprite, all->pos);
-	bubble_sort(all->data_sprite->sprites, all->data_sprite->count_sprite)
-	while (i < all->data_sprite->count_sprite)
+	bubble_sort(all->data_sprite->sprites, all->data_sprite->count_sprites);
+	while (i < all->data_sprite->count_sprites)
 	{
 		calc_sprite(all->data_sprite, i, all->pos, all->textures);
-		all->sprite->stripe = all->sprite->draw_start_x;
-		draw_sprite(all->sprite, all->textures, all->S);
+		all->data_sprite->stripe = all->data_sprite->draw_start_x;
+		draw_sprite(all->data_sprite, all->textures, all->S, all);
 		i++;
 	}
 }
