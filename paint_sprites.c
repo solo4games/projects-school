@@ -6,7 +6,7 @@
 /*   By: lbrandy <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/11 13:58:48 by lbrandy           #+#    #+#             */
-/*   Updated: 2021/03/11 15:39:40 by lbrandy          ###   ########.fr       */
+/*   Updated: 2021/03/13 15:41:31 by lbrandy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,8 @@ void	calculate_draw(t_datasprite *sprite, t_textures *res)
 	if (sprite->draw_start_x < 0)
 		sprite->draw_start_x = 0;
 	sprite->draw_end_x = sprite->sprite_width / 2 + sprite->sprite_screen_x - 0.6;
-	if (sprite->draw_end_x >= res->y)
-		sprite->draw_end_x = res->y - 1;
+	if (sprite->draw_end_x >= res->x)
+		sprite->draw_end_x = res->x - 1;
 }
 
 void	calc_sprite(t_datasprite *sprite, int i, t_pos *pos, t_textures *res)
@@ -149,7 +149,7 @@ void	draw_sprite(t_datasprite *s, t_textures *res, t_datatext *tex, t_all *all)
 	{
 		s->tex_x = (int)(256 * (s->stripe - (-s->sprite_width / 2 +
 		s->sprite_screen_x)) * s->tex_width / s->sprite_width) / 256;
-		if (s->transform_y > 0 && s->stripe > 0 && s->stripe < res->y &&
+		if (s->transform_y > 0 && s->stripe > 0 && s->stripe < res->x &&
 				s->transform_y < s->z_buffer[s->stripe])
 		{
 			y = s->draw_start_y;
