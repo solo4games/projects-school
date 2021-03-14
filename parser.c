@@ -107,12 +107,21 @@ void	parse_map(t_list *list, t_all *all)
 
 	i = 0;
 	count  = 0;
+	list = skip_empty_lines(list);
 	start_map = list;
 	while(start_map)
 	{
-		count++;
-		start_map = start_map->next;
+		if (start_map->content)
+		{
+			if (!start_map || check_str(start_map->content)
+				break;
+			count++;
+			start_map = start_map->next;
+		}
+		else
+			break;
 	}
+	check_trash(start_map);
 	all->map = (char **)ft_calloc(count + 1, sizeof (char *));
 	while (i < count)
 	{
