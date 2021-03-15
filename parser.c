@@ -129,6 +129,11 @@ void	parse_map(t_list *list, t_all *all)
 		list = list->next;
 		i++;
 	}
+	init_pos(all, pos) //замаллочить память и написать функцию init dir
+	check_bound(all, all->map);
+	flood(pos, all);
+	find_sprites(spr); // найти функцию в спрайтах скорее всего не надо
+	to_zero(
 	for (int k = 0; k < count; k++)
 		printf("map2 = %s\n", all->map[k]); 
 	printf("parse map\n");
