@@ -45,9 +45,9 @@ void			error_handler(int type_error, int code)
 	if (type_error == 3)
 		map_errors(code);
 	if (type_error == 4)
-		write(2, "ERROR:\nmlx library error!\n", 27);
+		write(2, "ERROR:\nmlx library error!\n", 27); //mlx new window
 	if (type_error == 5)
-		write(2, "ERROR:\nargv error!\n", 20);
+		write(2, "ERROR:\nargv error!\n", 20);//argv_check
 	if (type_error == 6)
 		write(2, "ERROR:\ninvalid third argument\n", 31);
 	exit(2);
